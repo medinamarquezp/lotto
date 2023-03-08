@@ -1,4 +1,4 @@
-# Lotto data management
+# 🎟️ Lotto data management
 
 This repository provides a basic example of a lotto data management with Solidity.
 
@@ -24,19 +24,11 @@ This repository provides a basic example of a lotto data management with Solidit
 
 ```sh
 truffle compile
-truffle migrate --network DESIRED_NETWORK
+truffle migrate --network goerli
 ```
 
-#### Verification
+#### Test
 
 ```sh
-truffle run verify DEPLOYED_CONTRACT_NAME@DEPLOYED_CONTRACT_ADDRESS --network DESIRED_NETWORK
-```
-
-#### Example with Goerli Network
-
-```sh
-truffle compile
-truffle migrate --network ethereum_goerli_testnet
-truffle run verify Lotto@0x... --network ethereum_goerli_testnet
+truffle test
 ```
