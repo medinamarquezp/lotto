@@ -24,33 +24,51 @@ contract("Lotto", (accounts) => {
   it("Should create first bet", async () => {
     const username = "firstUser";
     const email = "first-user@test.com";
-    const { receipt } = await instance.bet(username, email);
+    const { receipt } = await instance.bet(username, email, {
+      value: web3.utils.toWei(".001", "ether"),
+    });
     assert.equal(receipt.status, true, "Should create first bet");
   });
 
   it("Status should be updated after first bet", async () => {
     const jackpot = await instance.getGameJackpot();
     const players = await instance.countGamePlayers();
-    assert.equal(jackpot, 2e16, "Jackpot should be updated after first bet");
-    assert.equal(players, 1, "Players should be updated after first bet");
+    const expectedJackpot = web3.utils.toBN(web3.utils.toWei(".001", "ether"));
+    assert.equal(
+      jackpot.toString(),
+      expectedJackpot.toString(),
+      "Jackpot should be updated after first bet"
+    );
+    assert.equal(
+      players.toString(),
+      "1",
+      "Players should be updated after first bet"
+    );
   });
 
   it("Should create second bet", async () => {
     const username = "secondUser";
     const email = "second-user@test.com";
-    const { receipt } = await instance.bet(username, email);
+    const { receipt } = await instance.bet(username, email, {
+      value: web3.utils.toWei(".001", "ether"),
+    });
     assert.equal(receipt.status, true, "Should create second bet");
   });
 
   it("Status should be updated after second bet", async () => {
     const jackpot = await instance.getGameJackpot();
     const players = await instance.countGamePlayers();
+    const expectedJackpot = web3.utils.toBN(web3.utils.toWei(".002", "ether"));
     assert.equal(
-      jackpot,
-      2e16 * 2,
+      jackpot.toString(),
+      expectedJackpot.toString(),
       "Jackpot should be updated after second bet"
     );
-    assert.equal(players, 2, "Players should be updated after second bet");
+    assert.equal(
+      players.toString(),
+      "2",
+      "Players should be updated after second bet"
+    );
   });
 
   it("Should pick a winner and close game", async () => {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 struct Player {
-    address wallet;
+    address payable wallet;
     string username;
     string email;
 }

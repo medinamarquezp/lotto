@@ -30,20 +30,25 @@ contract Lotto {
         return game.total;
     }
 
-    function countGamePlayers() public view returns (uint) {
+    function countGamePlayers() public view returns (uint256) {
         return players.length;
     }
 
-    function bet(string memory _username, string memory _email) public {
-        address _wallet = msg.sender;
-        game.total += 2e16;
+    function bet(string memory _username, string memory _email) public payable {
+        require(msg.value == .001 ether, "Bet price is 0.001 ETH");
+        game.total += msg.value;
         players.push(
-            Player({wallet: _wallet, username: _username, email: _email})
+            Player({
+                wallet: payable(msg.sender),
+                username: _username,
+                email: _email
+            })
         );
     }
 
-    function pickWinner() public onlyowner returns (string memory) {
+    function pickWinner() public payable onlyowner returns (string memory) {
         uint256 winnerIndex = getWinnerIndex();
+        players[winnerIndex].wallet.transfer(game.total);
         string memory message = string.concat(
             "El usuario ",
             players[winnerIndex].username,
@@ -80,7 +85,10 @@ contract Lotto {
     }
 
     modifier onlyowner() {
-        require(msg.sender == owner);
+        require(
+            msg.sender == owner,
+            "This operation is only available for contract owner"
+        );
         _;
     }
 }
