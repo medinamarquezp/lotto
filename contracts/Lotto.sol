@@ -8,20 +8,20 @@ contract Lotto {
     address public owner;
     Game public game;
     Player[] private players;
-    uint256[] private pastGames;
-    mapping(uint256 => Winner) private history;
+    string[] private pastGames;
+    mapping(string => Winner) private history;
 
     constructor() {
         owner = msg.sender;
-        game = Game({id: block.timestamp, total: 0});
+        game = Game({id: Strings.toString(block.timestamp), total: 0});
     }
 
-    function getPastGamesIds() public view returns (uint256[] memory) {
+    function getPastGamesIds() public view returns (string[] memory) {
         return pastGames;
     }
 
     function getPastGameWinner(
-        uint256 gameId
+        string memory gameId
     ) public view returns (string memory) {
         return history[gameId].player.username;
     }
@@ -34,52 +34,45 @@ contract Lotto {
         return players.length;
     }
 
-    function bet(
-        string memory _username,
-        string memory _email,
-        uint256 _quantity
-    ) public returns (bool) {
-        require(
-            _quantity < .01 ether,
-            "Minimun bet quantity should be .01 ETH"
-        );
+    function bet(string memory _username, string memory _email) public {
         address _wallet = msg.sender;
-        game.total += _quantity;
+        game.total += 2e16;
         players.push(
             Player({wallet: _wallet, username: _username, email: _email})
         );
-        return true;
     }
 
     function pickWinner() public onlyowner returns (string memory) {
-        Player memory winner = getRandomPlayer();
-        archiveFinishedGame(winner);
+        uint256 winnerIndex = getWinnerIndex();
+        string memory message = string.concat(
+            "El usuario ",
+            players[winnerIndex].username,
+            " con email ",
+            players[winnerIndex].email,
+            " ha ganado ",
+            Strings.toString(game.total),
+            "ETH"
+        );
+        archiveFinishedGame(winnerIndex);
         resetGame();
-        return
-            string.concat(
-                "El usuario ",
-                winner.username,
-                " con email ",
-                winner.email,
-                " ha ganado ",
-                Strings.toString(game.total),
-                "ETH"
-            );
+        return message;
     }
 
-    function archiveFinishedGame(Player memory winner) private {
-        history[game.id] = Winner({player: winner, total: game.total});
+    function archiveFinishedGame(uint256 winnerIndex) private {
+        history[game.id] = Winner({
+            player: players[winnerIndex],
+            total: game.total
+        });
         pastGames.push(game.id);
     }
 
     function resetGame() private {
-        game = Game({id: block.timestamp, total: 0});
-        players = new Player[](0);
+        game = Game({id: Strings.toString(block.timestamp), total: 0});
+        delete players;
     }
 
-    function getRandomPlayer() private view returns (Player memory) {
-        uint index = getRandomNumber() % players.length;
-        return players[index];
+    function getWinnerIndex() private view returns (uint256) {
+        return getRandomNumber() % players.length;
     }
 
     function getRandomNumber() private view returns (uint) {

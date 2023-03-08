@@ -13,6 +13,6 @@ struct Winner {
 }
 
 struct Game {
-    uint256 id;
+    string id;
     uint256 total;
 }
